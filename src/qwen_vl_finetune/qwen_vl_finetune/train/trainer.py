@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Sequence, Tuple, Callable
+from typing import Optional
 
 import torch
 from flash_attn.flash_attn_interface import flash_attn_varlen_func
@@ -47,7 +47,7 @@ def flash_attention_forward(
             "`flash_attention_2` does not support `output_attentions=True` or `head_mask`."
             " Please set your attention to `eager` if you want any of these features."
         )
-    
+
     # This is before the transpose
     seq_len = query.shape[2]
 
@@ -77,7 +77,11 @@ def flash_attention_forward(
         elif hasattr(module.config, "_pre_quantization_dtype"):
             target_dtype = module.config._pre_quantization_dtype
         else:
-            target_dtype = next(layer for layer in module.modules() if isinstance(layer, torch.nn.Linear)).weight.dtype
+            target_dtype = next(
+                layer
+                for layer in module.modules()
+                if isinstance(layer, torch.nn.Linear)
+            ).weight.dtype
 
     query = query.squeeze(0)
     key = key.squeeze(0)
@@ -118,7 +122,9 @@ def qwen2vl_forward(
     output_attentions: bool = False,
     use_cache: bool = False,
     cache_position: Optional[torch.LongTensor] = None,
-    position_embeddings: Optional[tuple[torch.Tensor, torch.Tensor]] = None,  # necessary, but kept here for BC
+    position_embeddings: Optional[
+        tuple[torch.Tensor, torch.Tensor]
+    ] = None,  # necessary, but kept here for BC
     **kwargs: Unpack[FlashAttentionKwargs],
 ) -> tuple[torch.Tensor, Optional[torch.Tensor], Optional[tuple[torch.Tensor]]]:
     bsz, q_len, _ = hidden_states.size()
@@ -137,8 +143,14 @@ def qwen2vl_forward(
     )
 
     if past_key_values is not None:
-        cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position}  # Specific to RoPE models
-        key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx, cache_kwargs)
+        cache_kwargs = {
+            "sin": sin,
+            "cos": cos,
+            "cache_position": cache_position,
+        }  # Specific to RoPE models
+        key_states, value_states = past_key_values.update(
+            key_states, value_states, self.layer_idx, cache_kwargs
+        )
 
     attn_output, attn_weights = flash_attention_forward(
         self,
@@ -158,7 +170,6 @@ def qwen2vl_forward(
     return attn_output, attn_weights
 
 
-
 @deprecate_kwarg("past_key_value", new_name="past_key_values", version="4.58")
 def qwen3vl_forward(
     self,
@@ -172,8 +183,12 @@ def qwen3vl_forward(
     input_shape = hidden_states.shape[:-1]
     hidden_shape = (*input_shape, -1, self.head_dim)
 
-    query_states = self.q_norm(self.q_proj(hidden_states).view(hidden_shape)).transpose(1, 2)
-    key_states = self.k_norm(self.k_proj(hidden_states).view(hidden_shape)).transpose(1, 2)
+    query_states = self.q_norm(self.q_proj(hidden_states).view(hidden_shape)).transpose(
+        1, 2
+    )
+    key_states = self.k_norm(self.k_proj(hidden_states).view(hidden_shape)).transpose(
+        1, 2
+    )
     value_states = self.v_proj(hidden_states).view(hidden_shape).transpose(1, 2)
 
     cos, sin = position_embeddings
@@ -182,7 +197,9 @@ def qwen3vl_forward(
     if past_key_values is not None:
         # sin and cos are specific to RoPE models; cache_position needed for the static cache
         cache_kwargs = {"sin": sin, "cos": cos, "cache_position": cache_position}
-        key_states, value_states = past_key_values.update(key_states, value_states, self.layer_idx, cache_kwargs)
+        key_states, value_states = past_key_values.update(
+            key_states, value_states, self.layer_idx, cache_kwargs
+        )
 
     attn_output, attn_weights = flash_attention_forward(
         self,
@@ -207,7 +224,7 @@ def return_mask(
     cache_position,
     past_key_values,
     position_ids,
-    **kwargs
+    **kwargs,
 ):
     return attention_mask
 
@@ -216,37 +233,26 @@ def replace_qwen2_vl_attention_class():
     import transformers
     import transformers.modeling_flash_attention_utils
 
-
     transformers.models.qwen2_vl.modeling_qwen2_vl.Qwen2VLAttention.forward = (
         qwen2vl_forward
     )
-    transformers.models.qwen2_vl.modeling_qwen2_vl.create_causal_mask = (
-        return_mask
-    )
+    transformers.models.qwen2_vl.modeling_qwen2_vl.create_causal_mask = return_mask
     transformers.models.qwen2_vl.modeling_qwen2_vl.create_sliding_window_causal_mask = (
         return_mask
-    )    
+    )
     ## qwen2_5_vl
     transformers.models.qwen2_5_vl.modeling_qwen2_5_vl.Qwen2_5_VLAttention.forward = (
         qwen2vl_forward
     )
-    transformers.models.qwen2_5_vl.modeling_qwen2_5_vl.create_causal_mask = (
-        return_mask
-    )
-    transformers.models.qwen2_5_vl.modeling_qwen2_5_vl.create_sliding_window_causal_mask = (
-        return_mask
-    )
+    transformers.models.qwen2_5_vl.modeling_qwen2_5_vl.create_causal_mask = return_mask
+    transformers.models.qwen2_5_vl.modeling_qwen2_5_vl.create_sliding_window_causal_mask = return_mask
     ## qwen3vl
     transformers.models.qwen3_vl.modeling_qwen3_vl.Qwen3VLTextAttention.forward = (
         qwen3vl_forward
     )
-    transformers.models.qwen3_vl.modeling_qwen3_vl.create_causal_mask = (
-        return_mask
-    )
+    transformers.models.qwen3_vl.modeling_qwen3_vl.create_causal_mask = return_mask
     ## qwen3vl moe
-    transformers.models.qwen3_vl_moe.modeling_qwen3_vl_moe.Qwen3VLMoeTextAttention.forward = (
-        qwen3vl_forward
-    )
+    transformers.models.qwen3_vl_moe.modeling_qwen3_vl_moe.Qwen3VLMoeTextAttention.forward = qwen3vl_forward
     transformers.models.qwen3_vl_moe.modeling_qwen3_vl_moe.create_causal_mask = (
         return_mask
     )
@@ -314,7 +320,6 @@ def print_trainable_parameters(self) -> None:
 
 
 def create_optimizer(self):
-
     opt_model = self.model
 
     if self.optimizer is None:
@@ -503,9 +508,7 @@ Qwen2_5_VisionTransformerPretrainedModel.print_trainable_parameters = (
 )
 Qwen2_5_VLModel.print_trainable_parameters = print_trainable_parameters
 
-Qwen3VLVisionModel.print_trainable_parameters = (
-    print_trainable_parameters_visual
-)
+Qwen3VLVisionModel.print_trainable_parameters = print_trainable_parameters_visual
 Qwen3VLModel.print_trainable_parameters = print_trainable_parameters
 Qwen3VLMoeVisionModel.print_trainable_parameters = print_trainable_parameters_visual
 Qwen3VLMoeModel.print_trainable_parameters = print_trainable_parameters

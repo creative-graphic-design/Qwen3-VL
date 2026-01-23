@@ -4,8 +4,8 @@ import logging
 import re
 import time
 import itertools
-from dataclasses import dataclass, field
-from typing import Dict, Optional, Sequence, List, Tuple, Any
+from dataclasses import dataclass
+from typing import Dict, Sequence, List, Any
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -441,7 +441,6 @@ class LazySupervisedDataset(Dataset):
         return data_dict
 
     def _get_packed_item(self, sources) -> Dict[str, torch.Tensor]:
-
         if isinstance(sources, dict):
             if isinstance(source, dict):
                 sources = [sources]
@@ -454,9 +453,9 @@ class LazySupervisedDataset(Dataset):
             for source in sources:
                 if isinstance(source, dict):
                     source = [source]
-                assert (
-                    len(source) == 1
-                ), f"Don't know why it is wrapped to a list.\n {source}"  # FIXME
+                assert len(source) == 1, (
+                    f"Don't know why it is wrapped to a list.\n {source}"
+                )  # FIXME
                 data_list.append(self._get_item(source))
 
             input_ids = torch.cat([d["input_ids"] for d in data_list], dim=1)

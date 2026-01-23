@@ -7,8 +7,8 @@ CAMBRIAN_737K = {
 }
 
 CAMBRIAN_737K_PACK = {
-    "annotation_path": f"PATH_TO_CAMBRIAN_737K_ANNOTATION_PACKED",
-    "data_path": f"",
+    "annotation_path": "PATH_TO_CAMBRIAN_737K_ANNOTATION_PACKED",
+    "data_path": "",
 }
 
 MP_DOC = {

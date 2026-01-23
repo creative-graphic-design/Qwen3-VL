@@ -2,7 +2,6 @@ import os
 from playwright.sync_api import sync_playwright
 import argparse
 from PIL import Image
-import time
 
 
 def take_screenshot(url, output_file="screenshot.png"):
@@ -21,7 +20,9 @@ def take_screenshot(url, output_file="screenshot.png"):
             # page.wait_for_timeout(1000)  # give it 1 second to paint
 
             # Take the screenshot
-            page.screenshot(path=output_file, full_page=True, animations="disabled", timeout=60000)
+            page.screenshot(
+                path=output_file, full_page=True, animations="disabled", timeout=60000
+            )
 
             browser.close()
     except Exception as e:
@@ -32,7 +33,6 @@ def take_screenshot(url, output_file="screenshot.png"):
 
 
 if __name__ == "__main__":
-
     # Initialize the parser
     parser = argparse.ArgumentParser(description="Process two path strings.")
 

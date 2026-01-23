@@ -1,6 +1,6 @@
 import transformers
 from dataclasses import dataclass, field
-from typing import Dict, Optional, Sequence, List
+from typing import Optional
 
 
 @dataclass
@@ -9,6 +9,7 @@ class ModelArguments:
     tune_mm_llm: bool = field(default=False)
     tune_mm_mlp: bool = field(default=False)
     tune_mm_vision: bool = field(default=False)
+
 
 @dataclass
 class DataArguments:

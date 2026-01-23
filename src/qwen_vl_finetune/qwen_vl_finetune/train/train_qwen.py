@@ -31,7 +31,7 @@ from transformers import (
     Qwen2VLForConditionalGeneration,
     Qwen2_5_VLForConditionalGeneration,
     Qwen3VLForConditionalGeneration,
-    Qwen3VLMoeForConditionalGeneration
+    Qwen3VLMoeForConditionalGeneration,
 )
 from qwenvl.data.data_processor import make_supervised_data_module
 from qwenvl.train.argument import (
@@ -100,7 +100,10 @@ def train(attn_implementation="flash_attention_2"):
     local_rank = training_args.local_rank
     os.makedirs(training_args.output_dir, exist_ok=True)
 
-    if "qwen3" in model_args.model_name_or_path.lower() and "a" in Path(model_args.model_name_or_path.rstrip("/")).name.lower():
+    if (
+        "qwen3" in model_args.model_name_or_path.lower()
+        and "a" in Path(model_args.model_name_or_path.rstrip("/")).name.lower()
+    ):
         model = Qwen3VLMoeForConditionalGeneration.from_pretrained(
             model_args.model_name_or_path,
             cache_dir=training_args.cache_dir,
@@ -133,7 +136,9 @@ def train(attn_implementation="flash_attention_2"):
         )
         data_args.model_type = "qwen2vl"
 
-    print(f'the initlized model is {model_args.model_name_or_path} the class is {model.__class__.__name__}')
+    print(
+        f"the initlized model is {model_args.model_name_or_path} the class is {model.__class__.__name__}"
+    )
     processor = AutoProcessor.from_pretrained(
         model_args.model_name_or_path,
     )
@@ -162,6 +167,7 @@ def train(attn_implementation="flash_attention_2"):
 
     if training_args.lora_enable:
         from peft import LoraConfig, get_peft_model, TaskType
+
         print("LoRA enabled")
 
         for p in model.parameters():
@@ -171,7 +177,12 @@ def train(attn_implementation="flash_attention_2"):
             r=training_args.lora_r or 64,
             lora_alpha=training_args.lora_alpha or 128,
             lora_dropout=training_args.lora_dropout or 0.05,
-            target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],  # Qwen 的 attention 线性层
+            target_modules=[
+                "q_proj",
+                "k_proj",
+                "v_proj",
+                "o_proj",
+            ],  # Qwen 的 attention 线性层
             bias="none",
             task_type=TaskType.CAUSAL_LM,
         )
@@ -182,7 +193,7 @@ def train(attn_implementation="flash_attention_2"):
         if torch.distributed.get_rank() == 0:
             model.visual.print_trainable_parameters()
             model.model.print_trainable_parameters()
-    
+
     data_module = make_supervised_data_module(processor, data_args=data_args)
     trainer = Trainer(
         model=model, processing_class=tokenizer, args=training_args, **data_module
@@ -198,7 +209,7 @@ def train(attn_implementation="flash_attention_2"):
     model.config.use_cache = True
 
     safe_save_model_for_hf_trainer(trainer=trainer, output_dir=training_args.output_dir)
-    
+
     processor.save_pretrained(training_args.output_dir)
 
 

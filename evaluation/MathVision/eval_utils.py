@@ -1,28 +1,23 @@
 import os
 import requests
 import time
-import random
 import copy
-import traceback
 import pandas as pd
-from PIL import Image
-from typing import List, Dict, Tuple, Any
-from common_utils import encode_image_to_base64
 from collections import defaultdict
 
 try:
     from latex2sympy2 import latex2sympy
 except ImportError:
-    print('Warning: latex2sympy2 not installed. Install with: pip install latex2sympy2')
+    print("Warning: latex2sympy2 not installed. Install with: pip install latex2sympy2")
     latex2sympy = None
 
-FAIL_MSG = 'Failed to obtain answer via API.'
+FAIL_MSG = "Failed to obtain answer via API."
 
 
 def is_equal(asw: str, gt_asw: str) -> bool:
     """Check if two answers are equal."""
     if not isinstance(asw, str) or not isinstance(gt_asw, str):
-        print('Warning: input is not string')
+        print("Warning: input is not string")
         print(asw, gt_asw)
     asw = str(asw).lower().strip()
     gt_asw = str(gt_asw).lower().strip()
@@ -96,15 +91,15 @@ def build_mathv_gpt4_prompt(line):
 Please read the following example.
 Then extract the answer from the model response and type it at the end of the prompt.\n
 """
-    question = line['question']
-    prediction = str(line['prediction'])
+    question = line["question"]
+    prediction = str(line["prediction"])
     prompt = task_description
     examples = get_gpt4_ICE()
     for example in examples:
-        prompt += example + '\n'
-    prompt += question + '\n'
-    prompt += 'Model response: ' + prediction + '\n'
-    prompt += 'Extracted answer: '
+        prompt += example + "\n"
+    prompt += question + "\n"
+    prompt += "Model response: " + prediction + "\n"
+    prompt += "Extracted answer: "
     return prompt
 
 
@@ -122,13 +117,13 @@ def can_infer_option(answer, choices):
         "Sorry, I can't help with images of people yet.",
         "I can't process this file.",
         "I'm sorry, but without the image provided",
-        'Cannot determine the answer'
+        "Cannot determine the answer",
     ]
     for err in reject_to_answer:
         if err in answer:
-            return 'Z'
+            return "Z"
 
-    def count_choice(splits, choices, prefix='', suffix=''):
+    def count_choice(splits, choices, prefix="", suffix=""):
         cnt = 0
         for c in choices:
             if prefix + c + suffix in splits:
@@ -136,21 +131,21 @@ def can_infer_option(answer, choices):
         return cnt
 
     answer_mod = copy.copy(answer)
-    chars = '.()[],:;!*#{}'
+    chars = ".()[],:;!*#{}"
     for c in chars:
-        answer_mod = answer_mod.replace(c, ' ')
+        answer_mod = answer_mod.replace(c, " ")
 
     splits = [x.strip() for x in answer_mod.split()]
     count = count_choice(splits, choices)
 
     if count == 1:
         for ch in choices:
-            if 'A' in splits and len(splits) > 3:
+            if "A" in splits and len(splits) > 3:
                 return False
             if ch in splits:
                 return ch
-    elif count == 0 and count_choice(splits, {'Z', ''}) == 1:
-        return 'Z'
+    elif count == 0 and count_choice(splits, {"Z", ""}) == 1:
+        return "Z"
     return False
 
 
@@ -179,12 +174,12 @@ def can_infer(answer, choices):
 def post_check(line, prefetch=False):
     """Check if the prediction matches the answer."""
     res = None
-    ans = line['answer']
-    response = line['prediction'] if prefetch else line['res']
+    ans = line["answer"]
+    response = line["prediction"] if prefetch else line["res"]
     try:
-        if len(eval(line['choices'])) > 0:
-            ans = line['answer']
-            choices = list_to_dict(eval(line['choices']))
+        if len(eval(line["choices"])) > 0:
+            ans = line["answer"]
+            choices = list_to_dict(eval(line["choices"]))
             res = can_infer(response, choices)
             if prefetch:
                 return res
@@ -202,7 +197,7 @@ def post_check(line, prefetch=False):
 
 class OpenAIWrapper:
     """Wrapper for OpenAI API."""
-    
+
     def __init__(self, model, api_base, api_key, timeout=60, retry=5, wait=5):
         self.model = model
         self.api_base = api_base
@@ -211,42 +206,42 @@ class OpenAIWrapper:
         self.retry = retry
         self.wait = wait
         self.fail_msg = FAIL_MSG
-    
+
     def generate(self, prompt, temperature=0):
         """Generate a response from the API."""
-        headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {self.api_key}'}
-        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+
         payload = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 4096,
-            "temperature": temperature
+            "temperature": temperature,
         }
-        
+
         for i in range(self.retry):
             try:
                 response = requests.post(
-                    self.api_base,
-                    headers=headers,
-                    json=payload,
-                    timeout=self.timeout
+                    self.api_base, headers=headers, json=payload, timeout=self.timeout
                 )
-                
+
                 if response.status_code == 200:
                     resp_json = response.json()
-                    return resp_json['choices'][0]['message']['content'].strip()
-                
+                    return resp_json["choices"][0]["message"]["content"].strip()
+
                 time.sleep(self.wait)
             except Exception as e:
                 print(f"API error: {e}")
                 time.sleep(self.wait)
-        
+
         return self.fail_msg
 
 
 class DashScopeWrapper:
     """Wrapper for DashScope API."""
-    
+
     def __init__(self, model, api_base, api_key, timeout=60, retry=5, wait=5):
         self.model = model
         self.api_base = api_base
@@ -255,65 +250,67 @@ class DashScopeWrapper:
         self.retry = retry
         self.wait = wait
         self.fail_msg = FAIL_MSG
-    
+
     def generate(self, prompt, temperature=0):
         """Generate a response from the API."""
-        headers = {'Content-Type': 'application/json', 'Authorization': f'Bearer {self.api_key}'}
-        
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.api_key}",
+        }
+
         payload = {
             "model": self.model,
             "messages": [{"role": "user", "content": prompt}],
             "max_completion_tokens": 4096,
             "n": 1,
             "temperature": temperature,
-            "stream": False
+            "stream": False,
         }
 
         for i in range(self.retry):
             try:
                 response = requests.post(
-                    self.api_base,
-                    headers=headers,
-                    json=payload,
-                    timeout=self.timeout
+                    self.api_base, headers=headers, json=payload, timeout=self.timeout
                 )
-                
+
                 if response.status_code == 200:
                     resp_json = response.json()
-                    
+
                     # Check finish reason
-                    for output in resp_json['choices']:
-                        if output['finish_reason'] not in ['stop', 'function_call']:
+                    for output in resp_json["choices"]:
+                        if output["finish_reason"] not in ["stop", "function_call"]:
                             print(f"DashScope finished with error: {resp_json}")
                             time.sleep(self.wait)
                             continue
-                    
-                    return resp_json['choices'][0]['message']['content']
+
+                    return resp_json["choices"][0]["message"]["content"]
                 else:
                     print(f"DashScope API error: HTTP {response.status_code}")
                     try:
                         error_content = response.json()
                         print(f"Error details: {error_content}")
                     except:
-                        print(f"Raw error content: {response.content.decode('utf-8', errors='replace')}")
-                
+                        print(
+                            f"Raw error content: {response.content.decode('utf-8', errors='replace')}"
+                        )
+
                 time.sleep(self.wait)
             except Exception as e:
                 print(f"DashScope error: {e}")
                 time.sleep(self.wait)
-        
+
         return self.fail_msg
 
 
 def build_judge(model, api_type):
     """Build a judge model for evaluation."""
-    if api_type == 'mit':
-        api_key = os.environ.get('MIT_SPIDER_TOKEN', '')
-        api_base = os.environ.get('MIT_SPIDER_URL', '')
+    if api_type == "mit":
+        api_key = os.environ.get("MIT_SPIDER_TOKEN", "")
+        api_base = os.environ.get("MIT_SPIDER_URL", "")
         return OpenAIWrapper(model, api_base, api_key)
-    elif api_type == 'dash':
-        api_key = os.environ.get('CHATGPT_DASHSCOPE_API_KEY', '')
-        api_base = os.environ.get('DASHSCOPE_API_BASE', '')
+    elif api_type == "dash":
+        api_key = os.environ.get("CHATGPT_DASHSCOPE_API_KEY", "")
+        api_base = os.environ.get("DASHSCOPE_API_BASE", "")
         return DashScopeWrapper(model, api_base, api_key)
     else:
         raise ValueError(f"Unsupported API type: {api_type}")
@@ -323,40 +320,44 @@ def MATH_V_auxeval(args):
     """Auxiliary evaluation for MathVision - extract answer from model response."""
     model, line = args
     prompt = build_mathv_gpt4_prompt(line)
-    log = ''
+    log = ""
     retry = 5
-    
+
     # Try rule-based extraction first
     if post_check(line, prefetch=True):
         res = post_check(line, prefetch=True)
-        log += 'Prefetch succeed.\n'
+        log += "Prefetch succeed.\n"
         extract_flag = True
-        if not res or res == 'Z':
+        if not res or res == "Z":
             extract_flag = False
-            log += f'Rule extract failed with ans: {res}'
+            log += f"Rule extract failed with ans: {res}"
         else:
-            log += f'Rule extract success with ans: {res}'
-        return dict(log=log, res=res, extract_model='rule', extract_flag=extract_flag)
-    
+            log += f"Rule extract success with ans: {res}"
+        return dict(log=log, res=res, extract_model="rule", extract_flag=extract_flag)
+
     # Use model-based extraction
     for i in range(retry):
-        prediction = line['prediction']
+        prediction = line["prediction"]
         res = model.generate(prompt, temperature=i * 0.5)
 
         if FAIL_MSG in res:
-            log += f'Try {i}: output is {prediction}, failed to parse.\n'
+            log += f"Try {i}: output is {prediction}, failed to parse.\n"
         else:
-            log += f'{model.model} extract Succeed.\n'
+            log += f"{model.model} extract Succeed.\n"
             return dict(log=log, res=res, extract_model=model.model, extract_flag=True)
-    
-    log += f'All {retry} retries failed.\n {model.model} response:{res}'
-    return dict(log=log, res='', extract_model=model.model, extract_flag=False)
+
+    log += f"All {retry} retries failed.\n {model.model} response:{res}"
+    return dict(log=log, res="", extract_model=model.model, extract_flag=False)
 
 
 def MATH_V_acc(result_file):
     """Calculate accuracy for MathVision results."""
-    data = pd.read_excel(result_file) if result_file.endswith('.xlsx') else pd.read_csv(result_file)
-    
+    data = (
+        pd.read_excel(result_file)
+        if result_file.endswith(".xlsx")
+        else pd.read_csv(result_file)
+    )
+
     tot = defaultdict(lambda: 0)
     fetch = defaultdict(lambda: 0)
     hit = defaultdict(lambda: 0)
@@ -365,18 +366,18 @@ def MATH_V_acc(result_file):
 
     for i in range(lt):
         item = data.iloc[i]
-        cate = item['category']
-        tot['Overall'] += 1
+        cate = item["category"]
+        tot["Overall"] += 1
         tot[cate] += 1
-        if 'Prefetch succeed' in item['log']:
-            fetch['Overall'] += 1
+        if "Prefetch succeed" in item["log"]:
+            fetch["Overall"] += 1
             fetch[cate] += 1
         if post_check(item, prefetch=False):
-            hit['Overall'] += 1
+            hit["Overall"] += 1
             hit[cate] += 1
         # Statistics of answers extracted by rule and gpt
-        extract_model = item['extract_model']
-        extract_flag = item['extract_flag']
+        extract_model = item["extract_model"]
+        extract_flag = item["extract_flag"]
         if extract_model in extract_counts:
             extract_counts[extract_model][1] += 1
         else:
@@ -386,21 +387,21 @@ def MATH_V_acc(result_file):
 
     res = defaultdict(list)
     for k in tot.keys():
-        res['Subject'].append(k)
-        res['tot'].append(tot[k])
-        res['prefetch'].append(fetch[k])
-        res['hit'].append(hit[k])
-        res['prefetch_rate'].append(fetch[k] / tot[k] * 100)
-        res['acc'].append(hit[k] / tot[k] * 100)
-        if k == 'Overall':
+        res["Subject"].append(k)
+        res["tot"].append(tot[k])
+        res["prefetch"].append(fetch[k])
+        res["hit"].append(hit[k])
+        res["prefetch_rate"].append(fetch[k] / tot[k] * 100)
+        res["acc"].append(hit[k] / tot[k] * 100)
+        if k == "Overall":
             for model_key in extract_counts:
-                res[model_key+'_success'].append(extract_counts[model_key][0])
-                res[model_key+'_all'].append(extract_counts[model_key][1])
+                res[model_key + "_success"].append(extract_counts[model_key][0])
+                res[model_key + "_all"].append(extract_counts[model_key][1])
         else:
             for model_key in extract_counts:
-                res[model_key+'_success'].append(0)
-                res[model_key+'_all'].append(0)
-    res = pd.DataFrame(res).sort_values('Subject', ignore_index=True)
+                res[model_key + "_success"].append(0)
+                res[model_key + "_all"].append(0)
+    res = pd.DataFrame(res).sort_values("Subject", ignore_index=True)
     return res
 
 
