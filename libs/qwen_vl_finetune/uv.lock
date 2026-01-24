@@ -893,14 +893,14 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "accelerate", specifier = "==1.7.0" },
-    { name = "deepspeed", specifier = "==0.17.1" },
+    { name = "accelerate", specifier = ">=1.7.0" },
+    { name = "deepspeed", specifier = ">=0.17.1" },
     { name = "peft", specifier = "==0.17.1" },
-    { name = "torch", specifier = "==2.6.0" },
-    { name = "torchcodec", specifier = "==0.2" },
-    { name = "torchvision", specifier = "==0.21.0" },
+    { name = "torch", specifier = ">=2.6.0" },
+    { name = "torchcodec", specifier = ">=0.2" },
+    { name = "torchvision", specifier = ">=0.21.0" },
     { name = "transformers", extras = ["torch", "torch-vision"], specifier = ">=4.57.6" },
-    { name = "triton", specifier = "==3.2.0" },
+    { name = "triton", specifier = ">=3.2.0" },
 ]
 
 [package.metadata.requires-dev]

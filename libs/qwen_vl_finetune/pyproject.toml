@@ -8,14 +8,14 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "accelerate==1.7.0",
-    "deepspeed==0.17.1",
+    "accelerate>=1.7.0",
+    "deepspeed>=0.17.1",
     "peft==0.17.1",
-    "torch==2.6.0",
-    "torchcodec==0.2",
-    "torchvision==0.21.0",
+    "torch>=2.6.0",
+    "torchcodec>=0.2",
+    "torchvision>=0.21.0",
     "transformers[torch,torch-vision]>=4.57.6",
-    "triton==3.2.0",
+    "triton>=3.2.0",
 ]
 
 [build-system]
@@ -23,8 +23,4 @@ requires = ["uv_build>=0.9.17,<0.10.0"]
 build-backend = "uv_build"
 
 [dependency-groups]
-dev = [
-    "pytest>=6.0.0",
-    "ruff>=0.1.5",
-    "ty>=0.0.10",
-]
+dev = ["pytest>=6.0.0", "ruff>=0.1.5", "ty>=0.0.10"]
