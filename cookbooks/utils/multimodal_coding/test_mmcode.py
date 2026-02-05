@@ -1,5 +1,6 @@
 # Standard library imports
 import base64
+import faulthandler
 import gzip
 import importlib
 import json
@@ -9,7 +10,6 @@ import platform
 import re
 import signal
 import sys
-import faulthandler
 from datetime import datetime
 from io import BytesIO, StringIO
 from unittest.mock import mock_open, patch
@@ -555,7 +555,6 @@ def reliability_guard(maximum_memory_bytes=None):
 
     builtins.exit = None
     builtins.quit = None
-
 
     os.environ["OMP_NUM_THREADS"] = "1"
 

@@ -2,12 +2,13 @@
 ODinW evaluation utilities.
 """
 
-import os
 import json
+import os
 import tempfile
-import numpy as np
-from typing import Dict, Sequence
 from collections import OrderedDict
+from typing import Dict, Sequence
+
+import numpy as np
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 

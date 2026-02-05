@@ -5,10 +5,11 @@ Data loading and processing utilities, fully independent of VLMEvalKit.
 """
 
 import os
-import pandas as pd
-import numpy as np
 import string
-from common_utils import download_file, md5, toliststr, decode_base64_to_image_file
+
+import numpy as np
+import pandas as pd
+from common_utils import decode_base64_to_image_file, download_file, md5, toliststr
 
 # RealWorldQA dataset URL and MD5
 REALWORLDQA_DATASET_URL = (

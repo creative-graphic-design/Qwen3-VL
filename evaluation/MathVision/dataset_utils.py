@@ -1,7 +1,8 @@
 import os
-import pandas as pd
+
 import numpy as np
-from common_utils import download_file, md5, toliststr, decode_base64_to_image_file
+import pandas as pd
+from common_utils import decode_base64_to_image_file, download_file, md5, toliststr
 
 # MathVision dataset URLs and MD5
 MATHVISION_DATASET_URL = {

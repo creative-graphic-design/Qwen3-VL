@@ -2,8 +2,8 @@
 #
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
-import os
 import copy
+import os
 import re
 from argparse import ArgumentParser
 from threading import Thread
@@ -11,14 +11,14 @@ from threading import Thread
 import gradio as gr
 import torch
 from transformers import (
-    AutoProcessor,
     AutoModelForImageTextToText,
+    AutoProcessor,
     TextIteratorStreamer,
 )
 
 try:
-    from vllm import SamplingParams, LLM
     from qwen_vl_utils import process_vision_info
+    from vllm import LLM, SamplingParams
 
     VLLM_AVAILABLE = True
 except ImportError:

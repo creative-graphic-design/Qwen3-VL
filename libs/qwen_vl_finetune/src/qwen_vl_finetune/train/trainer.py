@@ -2,30 +2,30 @@ from typing import Optional
 
 import torch
 from flash_attn.flash_attn_interface import flash_attn_varlen_func
-from transformers.modeling_flash_attention_utils import FlashAttentionKwargs
 from transformers import Trainer
 from transformers.cache_utils import Cache
-from transformers.utils.deprecation import deprecate_kwarg
-from transformers.processing_utils import Unpack
+from transformers.modeling_flash_attention_utils import FlashAttentionKwargs
+from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
+    Qwen2_5_VisionTransformerPretrainedModel,
+    Qwen2_5_VLModel,
+)
 from transformers.models.qwen2_vl.modeling_qwen2_vl import (
     Qwen2VisionTransformerPretrainedModel,
     Qwen2VLModel,
     apply_multimodal_rotary_pos_emb,
 )
-from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import (
-    Qwen2_5_VisionTransformerPretrainedModel,
-    Qwen2_5_VLModel,
-)
 from transformers.models.qwen3_vl.modeling_qwen3_vl import (
-    Qwen3VLVisionModel,
     Qwen3VLModel,
+    Qwen3VLVisionModel,
     apply_rotary_pos_emb,
 )
 from transformers.models.qwen3_vl_moe.modeling_qwen3_vl_moe import (
-    Qwen3VLMoeVisionModel,
     Qwen3VLMoeModel,
+    Qwen3VLMoeVisionModel,
 )
+from transformers.processing_utils import Unpack
 from transformers.utils import logging
+from transformers.utils.deprecation import deprecate_kwarg
 
 logger = logging.get_logger(__name__)
 
