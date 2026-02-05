@@ -1,21 +1,22 @@
-import os
-import json
 import argparse
-import pandas as pd
-import numpy as np
-import time
+import json
+import os
 import re
-from tqdm import tqdm
+import time
+
+import numpy as np
+import pandas as pd
 import torch
+
+# Local imports from refactored files
+from dataset_utils import dump_image, load_dataset
+from eval_utils import MATH_V_acc, build_judge, eval_single_sample
+from qwen_vl_utils import process_vision_info
+from tqdm import tqdm
+from transformers import AutoProcessor
 
 # vLLM imports
 from vllm import LLM, SamplingParams
-from qwen_vl_utils import process_vision_info
-from transformers import AutoProcessor
-
-# Local imports from refactored files
-from dataset_utils import load_dataset, dump_image
-from eval_utils import build_judge, eval_single_sample, MATH_V_acc
 
 # Set vLLM multiprocessing method
 os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"

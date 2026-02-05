@@ -4,16 +4,17 @@ RealWorldQA Evaluation Utilities
 Evaluation utilities, fully independent of VLMEvalKit.
 """
 
+import copy
 import os
-import requests
-import time
 import random
 import string
-import copy
+import time
 import traceback
+
 import pandas as pd
-from PIL import Image
+import requests
 from common_utils import encode_image_to_base64
+from PIL import Image
 
 
 class OpenAIWrapper:

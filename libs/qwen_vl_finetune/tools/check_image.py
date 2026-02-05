@@ -1,7 +1,8 @@
 import json
 import os
-from tqdm import tqdm
+
 from datasets import load_dataset
+from tqdm import tqdm
 
 
 def validate_data(json_file_path, media_folder_path):

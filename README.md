@@ -18,6 +18,19 @@ This generation delivers comprehensive upgrades across the board: superior text 
 
 Available in Dense and MoE architectures that scale from edge to cloud, with Instruct and reasoning‑enhanced Thinking editions for flexible, on‑demand deployment.
 
+## Keeping the Fork Up to Date
+
+```shell
+git remote add upstream https://github.com/QwenLM/Qwen3-VL
+```
+
+```shell
+git checkout main
+git fetch upstream
+git merge upstream/main
+git push -u origin main
+```
+
 #### Key Enhancements:
 
 - **Visual Agent**: Operates PC/mobile GUIs—recognizes elements, understands functions, invokes tools, completes tasks.

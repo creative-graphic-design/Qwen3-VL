@@ -6,20 +6,19 @@ import os
 import sys
 import time
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 from functools import lru_cache
 from io import BytesIO
-from typing import Optional, Union, Tuple, List, Any, Dict
-from concurrent.futures import ThreadPoolExecutor
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import numpy as np
 import requests
 import torch
 import torchvision
 from packaging import version
 from PIL import Image
-import numpy as np
 from torchvision import io, transforms
 from torchvision.transforms import InterpolationMode
-
 
 MAX_RATIO = 200
 SPATIAL_MERGE_SIZE = 2

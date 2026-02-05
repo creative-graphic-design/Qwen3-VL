@@ -1,9 +1,10 @@
-import os
-import requests
-import time
 import copy
-import pandas as pd
+import os
+import time
 from collections import defaultdict
+
+import pandas as pd
+import requests
 
 try:
     from latex2sympy2 import latex2sympy

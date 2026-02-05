@@ -1,14 +1,15 @@
+import concurrent.futures
 import json
 import os
+import time
+from copy import deepcopy
+
+import binpacking
 import numpy as np
 from PIL import Image
-from copy import deepcopy
-from transformers import AutoTokenizer, Qwen2VLImageProcessor
 from torchcodec.decoders import VideoDecoder
-import binpacking
 from tqdm import tqdm
-import concurrent.futures
-import time
+from transformers import AutoTokenizer, Qwen2VLImageProcessor
 
 
 def read_data(file_path):
