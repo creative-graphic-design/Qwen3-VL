@@ -1,22 +1,21 @@
+import itertools
 import json
-import random
 import logging
+import random
 import re
 import time
-import itertools
-from dataclasses import dataclass
-from typing import Dict, Sequence, List, Any
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, Dict, List, Sequence
 
 import numpy as np
 import torch
+import transformers
 from torch.utils.data import Dataset
 
-import transformers
-
 from . import data_list
-from .rope2d import get_rope_index_25, get_rope_index_2, get_rope_index_3
+from .rope2d import get_rope_index_2, get_rope_index_3, get_rope_index_25
 
 IGNORE_INDEX = -100
 IMAGE_TOKEN_INDEX = 151655
@@ -291,7 +290,6 @@ class LazySupervisedDataset(Dataset):
             list_data_dict += annotations
 
         rank0_print(f"Total training samples: {len(list_data_dict)}")
-
 
         rank0_print("Formatting inputs...Skip in lazy mode")
         processor = update_processor_pixels(processor, data_args)

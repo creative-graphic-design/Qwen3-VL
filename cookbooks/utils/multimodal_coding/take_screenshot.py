@@ -1,7 +1,8 @@
-import os
-from playwright.sync_api import sync_playwright
 import argparse
+import os
+
 from PIL import Image
+from playwright.sync_api import sync_playwright
 
 
 def take_screenshot(url, output_file="screenshot.png"):

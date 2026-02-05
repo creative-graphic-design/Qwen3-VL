@@ -1,7 +1,8 @@
-import requests
 import base64
 import hashlib
 import io
+
+import requests
 from PIL import Image
 
 

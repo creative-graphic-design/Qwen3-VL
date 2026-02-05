@@ -1,5 +1,6 @@
-import torch
 from typing import Optional, Tuple
+
+import torch
 
 
 def get_rope_index_3(

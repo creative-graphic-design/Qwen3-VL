@@ -14,32 +14,33 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-import os
 import logging
+import os
 import pathlib
-import torch
-import transformers
 import sys
 from pathlib import Path
+
+import torch
+import transformers
 
 project_root = Path(__file__).parent.parent.parent
 sys.path.append(str(project_root))
 
-from trainer import replace_qwen2_vl_attention_class
-
-from transformers import (
-    Qwen2VLForConditionalGeneration,
-    Qwen2_5_VLForConditionalGeneration,
-    Qwen3VLForConditionalGeneration,
-    Qwen3VLMoeForConditionalGeneration,
-)
 from qwenvl.data.data_processor import make_supervised_data_module
 from qwenvl.train.argument import (
-    ModelArguments,
     DataArguments,
+    ModelArguments,
     TrainingArguments,
 )
-from transformers import AutoProcessor, Trainer
+from trainer import replace_qwen2_vl_attention_class
+from transformers import (
+    AutoProcessor,
+    Qwen2_5_VLForConditionalGeneration,
+    Qwen2VLForConditionalGeneration,
+    Qwen3VLForConditionalGeneration,
+    Qwen3VLMoeForConditionalGeneration,
+    Trainer,
+)
 
 local_rank = None
 
@@ -166,7 +167,7 @@ def train(attn_implementation="flash_attention_2"):
     )
 
     if training_args.lora_enable:
-        from peft import LoraConfig, get_peft_model, TaskType
+        from peft import LoraConfig, TaskType, get_peft_model
 
         print("LoRA enabled")
 

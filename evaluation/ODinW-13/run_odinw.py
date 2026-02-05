@@ -1,23 +1,24 @@
-import os
-import json
 import argparse
-import numpy as np
+import json
+import os
 import time
-from tqdm import tqdm
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
+
+import numpy as np
 import torch
 
-# vLLM imports
-from vllm import LLM, SamplingParams
-from qwen_vl_utils import process_vision_info
-from transformers import AutoProcessor
+# Local imports from refactored files
+from dataset_utils import generate_odinw_jobs, load_odinw_config
+from eval_utils import compute_metrics
 
 # pycocotools imports
 from pycocotools.coco import COCO
+from qwen_vl_utils import process_vision_info
+from tqdm import tqdm
+from transformers import AutoProcessor
 
-# Local imports from refactored files
-from dataset_utils import load_odinw_config, generate_odinw_jobs
-from eval_utils import compute_metrics
+# vLLM imports
+from vllm import LLM, SamplingParams
 
 # Set vLLM multiprocessing method
 os.environ["VLLM_WORKER_MULTIPROC_METHOD"] = "spawn"
