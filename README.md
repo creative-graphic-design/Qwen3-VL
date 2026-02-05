@@ -10,6 +10,18 @@
 🖥️ <a href="https://huggingface.co/spaces/Qwen/Qwen3-VL-Demo">Demo</a>&nbsp&nbsp | &nbsp&nbsp💬 <a href="https://github.com/QwenLM/Qwen/blob/main/assets/wechat.png">WeChat (微信)</a>&nbsp&nbsp | &nbsp&nbsp🫨 <a href="https://discord.gg/CV4E9rpNSD">Discord</a>&nbsp&nbsp | &nbsp&nbsp📑 <a href="https://help.aliyun.com/zh/model-studio/developer-reference/qwen-vl-api">API</a>&nbsp&nbsp | &nbsp&nbsp🖥️ <a href="https://gallery.pai-ml.com/#/preview/deepLearning/cv/qwen2.5-vl">PAI-DSW</a>
 </p>
 
+## Keeping a Fork Up to Date
+
+```shell
+git remote add upstream https://github.com/QwenLM/Qwen3-VL
+```
+
+```shell
+git fetch upstream
+git checkout -b feat/fetch-upstream
+git merge upstream/main
+```
+
 ## Introduction
 
 Meet Qwen3-VL — the most powerful vision-language model in the Qwen series to date.
