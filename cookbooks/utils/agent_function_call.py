@@ -92,9 +92,7 @@ The action to perform. The available actions are:
         if action == "key":
             return self._key(params["text"])
         elif action == "click":
-            return self._click(
-                coordinate=params["coordinate"]
-            )
+            return self._click(coordinate=params["coordinate"])
         elif action == "long_press":
             return self._long_press(
                 coordinate=params["coordinate"], time=params["time"]
@@ -118,7 +116,7 @@ The action to perform. The available actions are:
 
     def _key(self, text: str):
         raise NotImplementedError()
-        
+
     def _click(self, coordinate: Tuple[int, int]):
         raise NotImplementedError()
 
@@ -142,7 +140,8 @@ The action to perform. The available actions are:
 
     def _terminate(self, status: str):
         raise NotImplementedError()
-    
+
+
 @register_tool("computer_use")
 class ComputerUse(BaseTool):
     @property
@@ -233,7 +232,13 @@ The action to perform. The available actions are:
     def call(self, params: Union[str, dict], **kwargs):
         params = self._verify_json_format_args(params)
         action = params["action"]
-        if action in ["left_click", "right_click", "middle_click", "double_click","triple_click"]:
+        if action in [
+            "left_click",
+            "right_click",
+            "middle_click",
+            "double_click",
+            "triple_click",
+        ]:
             return self._mouse_click(action)
         elif action == "key":
             return self._key(params["keys"])

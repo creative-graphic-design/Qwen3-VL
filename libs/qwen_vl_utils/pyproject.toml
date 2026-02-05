@@ -1,0 +1,38 @@
+[project]
+name = "qwen-vl-utils"
+version = "0.0.14"
+description = "Qwen Vision Language Model Utils - PyTorch"
+readme = "README.md"
+authors = [{ name = "Qwen Team", email = "chenkeqin.ckq@alibaba-inc.com" }]
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+keywords = [
+    "large language model",
+    "vision language model",
+    "qwen-vl",
+    "pytorch",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+]
+dependencies = [
+    "av>=16.1.0",
+    "packaging>=26.0",
+    "pillow>=12.1.0",
+    "requests>=2.32.5",
+]
+
+[project.urls]
+Homepage = "https://github.com/QwenLM/Qwen2-VL/tree/main/qwen-vl-utils"
+Repository = "https://github.com/QwenLM/Qwen2-VL.git"
+Issues = "https://github.com/QwenLM/Qwen2-VL/issues"
+
+[project.optional-dependencies]
+decord = ["decord>=0.6.0"]
+
+[build-system]
+requires = ["uv_build>=0.9.17,<0.10.0"]
+build-backend = "uv_build"

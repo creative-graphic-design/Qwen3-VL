@@ -9,7 +9,6 @@ import platform
 import re
 import signal
 import sys
-import typing
 import faulthandler
 from datetime import datetime
 from io import BytesIO, StringIO
@@ -192,17 +191,23 @@ def run_test(sample, test=None, debug=True):
                 True
             try:
                 if isinstance(in_outs["outputs"][index], dict):
-                    in_outs["outputs"][index] = [{int(k): v for k, v in in_outs["outputs"][index].items()}]
+                    in_outs["outputs"][index] = [
+                        {int(k): v for k, v in in_outs["outputs"][index].items()}
+                    ]
             except:
                 True
             try:
                 if isinstance(in_outs["outputs"][index][0], dict):
-                    in_outs["outputs"][index] = [{int(k): v for k, v in in_outs["outputs"][index][0].items()}]
+                    in_outs["outputs"][index] = [
+                        {int(k): v for k, v in in_outs["outputs"][index][0].items()}
+                    ]
             except:
                 True
 
             if debug:
-                print(f"time: {datetime.now().time()} testing index = {index}  inputs = {inputs}, {type(inputs)}. type = {which_type}")
+                print(
+                    f"time: {datetime.now().time()} testing index = {index}  inputs = {inputs}, {type(inputs)}. type = {which_type}"
+                )
             if which_type == CODE_TYPE.call_based:  # Call-based
                 signal.alarm(timeout)
                 faulthandler.enable()
@@ -214,13 +219,21 @@ def run_test(sample, test=None, debug=True):
                         output = list(output)
 
                     tmp_result = output == in_outs["outputs"][index]
-                    if isinstance(in_outs["outputs"][index], list) and in_outs["outputs"][index]:
-                        tmp_result = tmp_result or (output == in_outs["outputs"][index][0])
+                    if (
+                        isinstance(in_outs["outputs"][index], list)
+                        and in_outs["outputs"][index]
+                    ):
+                        tmp_result = tmp_result or (
+                            output == in_outs["outputs"][index][0]
+                        )
 
                     # ground truth sequences are not tuples
                     try:
                         if isinstance(output[0], tuple):
-                            tmp_result = tmp_result or ([list(x) for x in output] == in_outs["outputs"][index][0])
+                            tmp_result = tmp_result or (
+                                [list(x) for x in output]
+                                == in_outs["outputs"][index][0]
+                            )
                     except:
                         True
                     results.append(tmp_result)
@@ -230,13 +243,17 @@ def run_test(sample, test=None, debug=True):
                 except Exception as e:
                     signal.alarm(0)
                     faulthandler.disable()
-                    print(f"Standard input runtime error or time limit exceeded error = {e}")
+                    print(
+                        f"Standard input runtime error or time limit exceeded error = {e}"
+                    )
                     results.append(-1)
                     continue
                 faulthandler.disable()
                 signal.alarm(0)
                 if debug:
-                    print(f"outputs = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}")
+                    print(
+                        f"outputs = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
+                    )
             elif which_type == CODE_TYPE.standard_input:  # Standard input
                 faulthandler.enable()
                 signal.alarm(timeout)
@@ -256,7 +273,9 @@ def run_test(sample, test=None, debug=True):
                     except Exception as e:
                         # runtime error or took too long
                         signal.alarm(0)
-                        print(f"Call-based runtime error or time limit exceeded error = {repr(e)}{e}")
+                        print(
+                            f"Call-based runtime error or time limit exceeded error = {repr(e)}{e}"
+                        )
                         results.append(-1)
                     signal.alarm(0)
 
@@ -265,14 +284,18 @@ def run_test(sample, test=None, debug=True):
                         nl = "\n"
                         if not isinstance(inputs, list):
                             print(
-                                f"not passed output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs.replace(nl,' new-line ')}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
+                                f"not passed output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs.replace(nl, ' new-line ')}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
                             )
                         else:
-                            print(f"not passed output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}")
+                            print(
+                                f"not passed output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
+                            )
                     continue
 
                 if passed and debug:
-                    print(f"==> output = {output}, test outputs = {in_outs['outputs'][index]}")
+                    print(
+                        f"==> output = {output}, test outputs = {in_outs['outputs'][index]}"
+                    )
 
                 if custom_compare_(output, in_outs["outputs"][index]):
                     tmp_result = True
@@ -289,7 +312,9 @@ def run_test(sample, test=None, debug=True):
                     if isinstance(in_outs["outputs"][index], list):
                         tmp_result = tmp_result or (output == in_outs["outputs"][index])
                         if isinstance(output[0], str):
-                            tmp_result = tmp_result or ([e.strip() for e in output] == in_outs["outputs"][index])
+                            tmp_result = tmp_result or (
+                                [e.strip() for e in output] == in_outs["outputs"][index]
+                            )
                 except Exception as e:
                     if debug:
                         print(f"Failed check1 exception = {e}")
@@ -303,11 +328,17 @@ def run_test(sample, test=None, debug=True):
                 if isinstance(in_outs["outputs"][index], list):
                     for tmp_index, i in enumerate(in_outs["outputs"][index]):
                         in_outs["outputs"][index][tmp_index] = i.split("\n")
-                        in_outs["outputs"][index][tmp_index] = [x.strip() for x in in_outs["outputs"][index][tmp_index] if x]
+                        in_outs["outputs"][index][tmp_index] = [
+                            x.strip() for x in in_outs["outputs"][index][tmp_index] if x
+                        ]
                 else:
                     in_outs["outputs"][index] = in_outs["outputs"][index].split("\n")
-                    in_outs["outputs"][index] = list(filter(len, in_outs["outputs"][index]))
-                    in_outs["outputs"][index] = list(map(lambda x: x.strip(), in_outs["outputs"][index]))
+                    in_outs["outputs"][index] = list(
+                        filter(len, in_outs["outputs"][index])
+                    )
+                    in_outs["outputs"][index] = list(
+                        map(lambda x: x.strip(), in_outs["outputs"][index])
+                    )
 
                 try:
                     tmp_result = output == [in_outs["outputs"][index]]
@@ -329,9 +360,13 @@ def run_test(sample, test=None, debug=True):
                 if debug:
                     nl = "\n"
                     if not isinstance(inputs, list):
-                        print(f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs.replace(nl,' new-line ')}, {type(inputs)}, {output == [in_outs['outputs'][index]]}")
+                        print(
+                            f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs.replace(nl, ' new-line ')}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
+                        )
                     else:
-                        print(f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}")
+                        print(
+                            f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
+                        )
 
                 if tmp_result == True:
                     results.append(tmp_result)
@@ -349,15 +384,21 @@ def run_test(sample, test=None, debug=True):
                 try:
                     output_float = [float(e) for e in output]
                     gt_float = [float(e) for e in in_outs["outputs"][index]]
-                    tmp_result = tmp_result or ((len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float))
-                except Exception as e:
+                    tmp_result = tmp_result or (
+                        (len(output_float) == len(gt_float))
+                        and np.allclose(output_float, gt_float)
+                    )
+                except Exception:
                     pass
                 try:
                     if isinstance(output[0], list):
                         output_float = [float(e) for e in output[0]]
                         gt_float = [float(e) for e in in_outs["outputs"][index][0]]
-                        tmp_result = tmp_result or ((len(output_float) == len(gt_float)) and np.allclose(output_float, gt_float))
-                except Exception as e:
+                        tmp_result = tmp_result or (
+                            (len(output_float) == len(gt_float))
+                            and np.allclose(output_float, gt_float)
+                        )
+                except Exception:
                     pass
 
                 if tmp_result == True:
@@ -395,14 +436,22 @@ def run_test(sample, test=None, debug=True):
                     output = set(output)
 
                 try:
-                    tmp_result = set(frozenset(s) for s in output) == set(frozenset(s) for s in in_outs["outputs"][index])
+                    tmp_result = set(frozenset(s) for s in output) == set(
+                        frozenset(s) for s in in_outs["outputs"][index]
+                    )
                 except Exception as e:
                     if debug:
                         print(f"Failed check5 exception = {e}")
 
                 # if they are all numbers, round so that similar numbers are treated as identical
                 try:
-                    tmp_result = tmp_result or (set(frozenset(round(float(t), 3) for t in s) for s in output) == set(frozenset(round(float(t), 3) for t in s) for s in in_outs["outputs"][index]))
+                    tmp_result = tmp_result or (
+                        set(frozenset(round(float(t), 3) for t in s) for s in output)
+                        == set(
+                            frozenset(round(float(t), 3) for t in s)
+                            for s in in_outs["outputs"][index]
+                        )
+                    )
                 except Exception as e:
                     if debug:
                         print(f"Failed check6 exception = {e}")
@@ -415,16 +464,19 @@ def run_test(sample, test=None, debug=True):
                 if debug:
                     nl = "\n"
                     if not isinstance(inputs, list):
-                        print(f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs.replace(nl,' new-line ')}, {type(inputs)}, {output == [in_outs['outputs'][index]]}")
+                        print(
+                            f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs.replace(nl, ' new-line ')}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
+                        )
                     else:
-                        print(f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}")
+                        print(
+                            f"output = {output}, test outputs = {in_outs['outputs'][index]}, inputs = {inputs}, {type(inputs)}, {output == [in_outs['outputs'][index]]}"
+                        )
 
     sys.stdout.flush()
     return results
 
 
 def custom_compare_(output, ground_truth):
-
     if isinstance(output, list):
         output_1 = "\n".join(output)
         if stripped_string_compare(output_1, ground_truth):
@@ -446,7 +498,6 @@ def stripped_string_compare(s1, s2):
 
 
 def call_method(method, inputs):
-
     if isinstance(inputs, list):
         inputs = "\n".join(inputs)
 
@@ -464,7 +515,7 @@ def call_method(method, inputs):
     def _inner_call_method(_method):
         try:
             return _method()
-        except SystemExit as e:
+        except SystemExit:
             pass
         finally:
             pass
@@ -487,10 +538,16 @@ def reliability_guard(maximum_memory_bytes=None):
     if maximum_memory_bytes is not None:
         import resource
 
-        resource.setrlimit(resource.RLIMIT_AS, (maximum_memory_bytes, maximum_memory_bytes))
-        resource.setrlimit(resource.RLIMIT_DATA, (maximum_memory_bytes, maximum_memory_bytes))
+        resource.setrlimit(
+            resource.RLIMIT_AS, (maximum_memory_bytes, maximum_memory_bytes)
+        )
+        resource.setrlimit(
+            resource.RLIMIT_DATA, (maximum_memory_bytes, maximum_memory_bytes)
+        )
         if not platform.uname().system == "Darwin":
-            resource.setrlimit(resource.RLIMIT_STACK, (maximum_memory_bytes, maximum_memory_bytes))
+            resource.setrlimit(
+                resource.RLIMIT_STACK, (maximum_memory_bytes, maximum_memory_bytes)
+            )
 
     faulthandler.disable()
 
@@ -499,7 +556,6 @@ def reliability_guard(maximum_memory_bytes=None):
     builtins.exit = None
     builtins.quit = None
 
-    import os
 
     os.environ["OMP_NUM_THREADS"] = "1"
 
@@ -568,7 +624,9 @@ def check_correctness(sample, generation, timeout=20, debug=True):
 
     manager = multiprocessing.Manager()
     result = manager.list()
-    p = multiprocessing.Process(target=_temp_run, args=(sample, generation, debug, result))
+    p = multiprocessing.Process(
+        target=_temp_run, args=(sample, generation, debug, result)
+    )
     p.start()
     p.join(timeout=timeout + 1)
     if p.is_alive():
@@ -577,9 +635,9 @@ def check_correctness(sample, generation, timeout=20, debug=True):
         in_outs = json.loads(sample["input_output"])
         # consider that all tests failed
         result = [[-1 for i in range(len(in_outs["inputs"]))]]
-        print(f"global timeout")
+        print("global timeout")
         if debug:
-            print(f"global timeout")
+            print("global timeout")
     return result[0]
 
 
@@ -591,7 +649,7 @@ def evaluate_mmcode_solution(problem, solution_code, timeout=20, debug=True):
         print("❌ Missing problem or solution")
         return None
 
-    print(f"\n🧪 TESTING SOLUTION with MMCode framework:")
+    print("\n🧪 TESTING SOLUTION with MMCode framework:")
     print("-" * 50)
 
     # Extract the Python code from the solution (handling ```python blocks)
@@ -606,11 +664,13 @@ def evaluate_mmcode_solution(problem, solution_code, timeout=20, debug=True):
         print("❌ No valid Python code found in solution")
         return None
 
-    print(f"📝 Testing code...")
+    print("📝 Testing code...")
 
     try:
         # Run the test using MMCode's exact testing framework
-        curr_res = check_correctness(problem, clean_solution, timeout=timeout, debug=debug)
+        curr_res = check_correctness(
+            problem, clean_solution, timeout=timeout, debug=debug
+        )
 
         if curr_res is None:
             print("❌ Test execution failed")
@@ -633,18 +693,18 @@ def evaluate_mmcode_solution(problem, solution_code, timeout=20, debug=True):
         error_tests = sum(1 for result in curr_res if result == -1)
         timeout_tests = sum(1 for result in curr_res if result == -2)
 
-        print(f"\n📊 DETAILED RESULTS:")
+        print("\n📊 DETAILED RESULTS:")
         for i, result in enumerate(curr_res):
             if result == 1:
-                print(f"✅ Test {i+1}: PASSED")
+                print(f"✅ Test {i + 1}: PASSED")
             elif result == 0:
-                print(f"❌ Test {i+1}: FAILED")
+                print(f"❌ Test {i + 1}: FAILED")
             elif result == -1:
-                print(f"💥 Test {i+1}: ERROR")
+                print(f"💥 Test {i + 1}: ERROR")
             elif result == -2:
-                print(f"⏱️  Test {i+1}: TIMEOUT")
+                print(f"⏱️  Test {i + 1}: TIMEOUT")
 
-        print(f"\n📈 SUMMARY:")
+        print("\n📈 SUMMARY:")
         print(f"✅ Passed: {passed_tests}")
         print(f"❌ Failed: {failed_tests}")
         print(f"💥 Errors: {error_tests}")
@@ -667,7 +727,7 @@ def evaluate_mmcode_solution(problem, solution_code, timeout=20, debug=True):
         print(f"\n🎯 FINAL SCORE: {passed_tests}/{total_tests} ({accuracy:.1%})")
 
         if evaluation["all_passed"]:
-            print(f"🏆 PERFECT: All tests passed!")
+            print("🏆 PERFECT: All tests passed!")
         else:
             print(f"⚠️  NEEDS IMPROVEMENT: success rate = {accuracy:.1%}")
 
@@ -720,11 +780,34 @@ def parse_args():
     import argparse
 
     parser = argparse.ArgumentParser(description="MMCode Evaluation Script")
-    parser.add_argument("--problem_file", type=str, default="mmcode_test.jsonl.gz", required=False, help="Path to the JSON file containing problems")
-    parser.add_argument("--problem_index", type=int, default=0, help="Index of the problem to evaluate (default: 0)")
-    parser.add_argument("--solution_file", type=str, required=True, help="Path to the text file containing the solution code")
-    parser.add_argument("--timeout", type=int, default=20, help="Timeout in seconds for each test case (default: 20)")
-    parser.add_argument("--debug", action="store_true", help="Enable debug mode with detailed output")
+    parser.add_argument(
+        "--problem_file",
+        type=str,
+        default="mmcode_test.jsonl.gz",
+        required=False,
+        help="Path to the JSON file containing problems",
+    )
+    parser.add_argument(
+        "--problem_index",
+        type=int,
+        default=0,
+        help="Index of the problem to evaluate (default: 0)",
+    )
+    parser.add_argument(
+        "--solution_file",
+        type=str,
+        required=True,
+        help="Path to the text file containing the solution code",
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=20,
+        help="Timeout in seconds for each test case (default: 20)",
+    )
+    parser.add_argument(
+        "--debug", action="store_true", help="Enable debug mode with detailed output"
+    )
     return parser.parse_args()
 
 
